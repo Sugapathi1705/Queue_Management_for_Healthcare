@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </h2>
+                <form method="POST">
+                    <div class="profile-info mb-4">
+                        <h4>Personal Information</h4>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ current_user.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                        </div>
+                    </div>
+
+                    {% if current_user.is_doctor %}
+                        <div class="doctor-info mb-4">
+                            <h4>Professional Information</h4>
+                            <div class="mb-3">
+                                <label for="specialization" class="form-label">Specialization</label>
+                                <input type="text" class="form-control" id="specialization" name="specialization" value="{{ doctor_info.specialization or '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="experience" class="form-label">Years of Experience</label>
+                                <input type="number" class="form-control" id="experience" name="experience" value="{{ doctor_info.experience or 0 }}" min="0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="education" class="form-label">Education</label>
+                                <textarea class="form-control" id="education" name="education" rows="2">{{ doctor_info.education or '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="certifications" class="form-label">Certifications</label>
+                                <textarea class="form-control" id="certifications" name="certifications" rows="2">{{ doctor_info.certifications or '' }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="consultation_fee" class="form-label">Consultation Fee ($)</label>
+                                <input type="number" class="form-control" id="consultation_fee" name="consultation_fee" value="{{ doctor_info.consultation_fee or 0 }}" min="0" step="0.01">
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

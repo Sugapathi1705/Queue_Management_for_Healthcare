@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row align-items-center py-5">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold mb-4">Your Health, Our Priority</h1>
+            <p class="lead mb-4">Connect with qualified doctors, schedule appointments, and manage your healthcare journey all in one place.</p>
+            {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-md-2">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{{ url_for('signup') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            </div>
+            {% else %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-columns"></i> Go to Dashboard
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-md-6 text-center">
+            <i class="fas fa-hospital-user fa-10x text-primary opacity-75"></i>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row py-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Why Choose Us?</h2>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-md fa-3x text-primary mb-3"></i>
+                    <h3 class="h5 card-title">Expert Doctors</h3>
+                    <p class="card-text">Connect with experienced and qualified healthcare professionals.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                    <h3 class="h5 card-title">Easy Scheduling</h3>
+                    <p class="card-text">Book appointments at your convenience with our simple scheduling system.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="fas fa-comments fa-3x text-primary mb-3"></i>
+                    <h3 class="h5 card-title">Direct Communication</h3>
+                    <p class="card-text">Seamless communication between patients and healthcare providers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if show_logout_confirm %}
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logoutConfirmModalLabel">Stay Logged In?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>You are currently logged in. Would you like to:</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-columns"></i> Stay Logged In
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show the modal when the page loads
+    var logoutModal = new bootstrap.Modal(document.getElementById('logoutConfirmModal'));
+    logoutModal.show();
+    
+    // Prevent the modal from being closed by clicking outside or pressing escape
+    document.getElementById('logoutConfirmModal').addEventListener('hide.bs.modal', function (event) {
+        event.preventDefault();
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

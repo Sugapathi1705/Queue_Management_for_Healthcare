@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">
+        <i class="fas fa-comments"></i> Patient Chats
+    </h2>
+
+    <div class="row">
+        {% if chat_info %}
+            {% for info in chat_info %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">{{ info.patient.name }}</h5>
+                                    <p class="text-muted small mb-0">Patient</p>
+                                </div>
+                                {% if info.unread_count > 0 %}
+                                    <span class="badge bg-danger rounded-pill">{{ info.unread_count }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if info.latest_message %}
+                                <div class="chat-preview mb-3">
+                                    <p class="text-muted small mb-0">
+                                        {% if info.latest_message.sender_id == current_user.id %}
+                                            <i class="fas fa-check-double"></i>
+                                        {% endif %}
+                                        {{ info.latest_message.content[:50] }}{% if info.latest_message.content|length > 50 %}...{% endif %}
+                                    </p>
+                                    <small class="text-muted">{{ info.latest_message.timestamp.strftime('%H:%M') }}</small>
+                                </div>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('chat', user_id=info.patient.id) }}" class="btn {% if info.latest_message %}btn-outline-primary{% else %}btn-primary{% endif %} w-100">
+                                {% if info.latest_message %}
+                                    <i class="fas fa-comments"></i> Continue Chat
+                                {% else %}
+                                    <i class="fas fa-comments"></i> Start Chat
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> You don't have any appointments with patients yet.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.chat-preview {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 3px solid #0d6efd;
+}
+</style>
+{% endblock %}

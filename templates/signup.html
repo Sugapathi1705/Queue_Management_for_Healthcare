@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4"><i class="fas fa-user-plus"></i> Sign Up</h2>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_doctor" name="is_doctor" onchange="toggleDoctorFields()">
+                        <label class="form-check-label" for="is_doctor">Register as Doctor</label>
+                    </div>
+                    <div id="doctor-fields" style="display: none;">
+                        <div class="mb-3">
+                            <label for="specialization" class="form-label">Specialization</label>
+                            <input type="text" class="form-control" id="specialization" name="specialization">
+                        </div>
+                        <div class="mb-3">
+                            <label for="experience" class="form-label">Years of Experience</label>
+                            <input type="number" class="form-control" id="experience" name="experience" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="education" class="form-label">Education</label>
+                            <textarea class="form-control" id="education" name="education" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="certifications" class="form-label">Certifications</label>
+                            <textarea class="form-control" id="certifications" name="certifications" rows="2"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="consultation_fee" class="form-label">Consultation Fee ($)</label>
+                            <input type="number" class="form-control" id="consultation_fee" name="consultation_fee" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                    </div>
+                </form>
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleDoctorFields() {
+    const doctorFields = document.getElementById('doctor-fields');
+    const isDoctor = document.getElementById('is_doctor').checked;
+    doctorFields.style.display = isDoctor ? 'block' : 'none';
+}
+</script>
+{% endblock %}

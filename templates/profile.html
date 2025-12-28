@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-header">
+    <div class="container">
+        <div class="profile-avatar">
+            <i class="fas {% if current_user.is_doctor %}fa-user-md{% else %}fa-user{% endif %}"></i>
+        </div>
+        <h1 class="profile-name">{{ current_user.name }}</h1>
+        <p class="profile-type">
+            {% if current_user.is_doctor %}
+                <i class="fas fa-user-md"></i> Medical Professional
+            {% else %}
+                <i class="fas fa-user"></i> Patient
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    {% if current_user.is_doctor and doctor_info %}
+    <div class="profile-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ doctor_info.experience or 0 }}</div>
+            <div class="stat-label">Years of Experience</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ doctor_info.rating|round(1) or 0 }}</div>
+            <div class="stat-label">Average Rating</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ doctor_info.consultation_fee or 0 }}</div>
+            <div class="stat-label">Consultation Fee</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="profile-card">
+                <h4><i class="fas fa-user-circle me-2"></i>Personal Information</h4>
+                <div class="profile-info-item">
+                    <label>Full Name</label>
+                    <p>{{ current_user.name }}</p>
+                </div>
+                <div class="profile-info-item">
+                    <label>Email Address</label>
+                    <p>{{ current_user.email }}</p>
+                </div>
+                <div class="profile-info-item">
+                    <label>Account Type</label>
+                    <p>
+                        {% if current_user.is_doctor %}
+                            <span class="badge bg-primary">Doctor</span>
+                        {% else %}
+                            <span class="badge bg-info">Patient</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {% if current_user.is_doctor and doctor_info %}
+        <div class="col-md-6">
+            <div class="profile-card">
+                <h4><i class="fas fa-stethoscope me-2"></i>Professional Information</h4>
+                <div class="profile-info-item">
+                    <label>Specialization</label>
+                    <p>{{ doctor_info.specialization or 'Not specified' }}</p>
+                </div>
+                <div class="profile-info-item">
+                    <label>Experience</label>
+                    <p>{{ doctor_info.experience or 0 }} years</p>
+                </div>
+                <div class="profile-info-item">
+                    <label>Rating</label>
+                    <div class="d-flex align-items-center">
+                        <p>{{ doctor_info.rating|round(1) or 0 }}</p>
+                        <div class="rating-stars">
+                            {% for i in range(5) %}
+                            <i class="fas fa-star{% if i >= doctor_info.rating %}-o{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-info-item">
+                    <label>Consultation Fee</label>
+                    <p>${{ doctor_info.consultation_fee or 0 }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="profile-actions">
+        <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit Profile
+        </a>
+        <a href="#" class="btn btn-outline-primary">
+            <i class="fas fa-key"></i> Change Password
+        </a>
+        {% if current_user.is_doctor %}
+        <a href="{{ url_for('doctor_chats') }}" class="btn btn-outline-info">
+            <i class="fas fa-comments"></i> View Patient Chats
+        </a>
+        {% else %}
+        <a href="{{ url_for('patient_chats') }}" class="btn btn-outline-info">
+            <i class="fas fa-comments"></i> View Doctor Chats
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

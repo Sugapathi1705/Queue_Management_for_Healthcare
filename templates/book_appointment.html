@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center mb-0">Book Appointment with Dr. {{ doctor_user.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <p class="text-muted">Specialization: {{ doctor.specialization }}</p>
+                        <p class="text-muted"><i class="fas fa-clock"></i> Recommended Hours: 9:00 AM - 5:00 PM</p>
+                        <p class="text-muted"><i class="fas fa-money-bill-wave"></i> Consultation Fee: ${{ doctor.consultation_fee }}</p>
+                    </div>
+
+                    <form method="POST" id="appointmentForm">
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Select Date and Time</label>
+                            <div class="input-group">
+                                <input type="datetime-local" class="form-control" id="date" name="date" required
+                                       min="{{ now.strftime('%Y-%m-%dT%H:%M') }}">
+                                <button type="button" class="btn btn-primary" id="confirmDateTime">
+                                    <i class="fas fa-check"></i> Confirm
+                                </button>
+                            </div>
+                            <div class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> While we recommend booking between 9:00 AM and 5:00 PM
+                            </div>
+                            <div id="selectedDateTimeDisplay" class="mt-2 text-success" style="display: none;">
+                                <i class="fas fa-calendar-check"></i> Selected: <span id="confirmedDateTime"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3" id="descriptionSection" style="display: none;">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3" id="paymentSection" style="display: none;">
+                            <label class="form-label">Payment Method</label>
+                            <div class="payment-options">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="cash" value="cash" required>
+                                    <label class="form-check-label" for="cash">
+                                        <i class="fas fa-money-bill-wave"></i> Cash Payment
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="upi" value="upi">
+                                    <label class="form-check-label" for="upi">
+                                        <i class="fas fa-mobile-alt"></i> UPI Payment
+                                    </label>
+                                    <div class="upi-details mt-2" style="display: none;">
+                                        <input type="text" class="form-control" name="upi_id" placeholder="Enter UPI ID">
+                                    </div>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
+                                    <label class="form-check-label" for="card">
+                                        <i class="fas fa-credit-card"></i> Debit Card
+                                    </label>
+                                    <div class="card-details mt-2" style="display: none;">
+                                        <div class="mb-2">
+                                            <input type="text" class="form-control" name="card_number" placeholder="Card Number">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <input type="text" class="form-control" name="expiry" placeholder="MM/YY">
+                                            </div>
+                                            <div class="col">
+                                                <input type="text" class="form-control" name="cvv" placeholder="CVV">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary" id="submitButton" disabled>
+                                Book Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date');
+    const confirmButton = document.getElementById('confirmDateTime');
+    const descriptionSection = document.getElementById('descriptionSection');
+    const paymentSection = document.getElementById('paymentSection');
+    const submitButton = document.getElementById('submitButton');
+    const selectedDateTimeDisplay = document.getElementById('selectedDateTimeDisplay');
+    const confirmedDateTime = document.getElementById('confirmedDateTime');
+    const bookedTimes = {{ booked_times|tojson|default('[]', true) }};
+    
+    // Set minimum time to current time
+    const now = new Date();
+    const minDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    dateInput.min = minDate.toISOString().slice(0, 16);
+    
+    // Function to check if a time slot is available
+    function isTimeSlotAvailable(dateTime) {
+        const dateTimeStr = dateTime.toISOString().slice(0, 16);
+        return !bookedTimes.includes(dateTimeStr);
+    }
+    
+    // Function to format date and time for display
+    function formatDateTime(dateTime) {
+        return dateTime.toLocaleString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        });
+    }
+    
+    // Add input event listener to validate time slot
+    dateInput.addEventListener('input', function() {
+        const selectedDateTime = new Date(this.value);
+        if (!isTimeSlotAvailable(selectedDateTime)) {
+            this.value = '';
+            confirmButton.disabled = true;
+        } else {
+            confirmButton.disabled = false;
+        }
+    });
+    
+    // Add click event listener to confirm button
+    confirmButton.addEventListener('click', function() {
+        const selectedDateTime = new Date(dateInput.value);
+        if (isTimeSlotAvailable(selectedDateTime)) {
+            // Show the selected date and time
+            confirmedDateTime.textContent = formatDateTime(selectedDateTime);
+            selectedDateTimeDisplay.style.display = 'block';
+            // Show description section and payment section
+            descriptionSection.style.display = 'block';
+            paymentSection.style.display = 'block';
+            submitButton.disabled = false;
+            // Disable date input and confirm button
+            dateInput.disabled = true;
+            confirmButton.disabled = true;
+        }
+    });
+    
+    // Handle payment method selection
+    document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Hide all payment details first
+            document.querySelector('.upi-details').style.display = 'none';
+            document.querySelector('.card-details').style.display = 'none';
+            
+            // Show relevant payment details
+            if (this.value === 'upi') {
+                document.querySelector('.upi-details').style.display = 'block';
+            } else if (this.value === 'card') {
+                document.querySelector('.card-details').style.display = 'block';
+            }
+        });
+    });
+    
+    // Add form submit event listener
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        const selectedDateTime = new Date(dateInput.value);
+        if (!isTimeSlotAvailable(selectedDateTime)) {
+            e.preventDefault();
+            return;
+        }
+        // Ensure the date input is enabled before submission
+        dateInput.disabled = false;
+        // Validate description
+        const description = document.getElementById('description').value.trim();
+        if (!description) {
+            e.preventDefault();
+            return;
+        }
+        // Validate payment method
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (!paymentMethod) {
+            e.preventDefault();
+            alert('Please select a payment method');
+            return;
+        }
+        // Validate payment details based on method
+        if (paymentMethod.value === 'upi') {
+            const upiId = document.querySelector('input[name="upi_id"]').value.trim();
+            if (!upiId) {
+                e.preventDefault();
+                alert('Please enter UPI ID');
+                return;
+            }
+        } else if (paymentMethod.value === 'card') {
+            const cardNumber = document.querySelector('input[name="card_number"]').value.trim();
+            const expiry = document.querySelector('input[name="expiry"]').value.trim();
+            const cvv = document.querySelector('input[name="cvv"]').value.trim();
+            if (!cardNumber || !expiry || !cvv) {
+                e.preventDefault();
+                alert('Please fill in all card details');
+                return;
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.payment-options {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+}
+.payment-options .form-check {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+}
+.payment-options .form-check:hover {
+    background-color: #e9ecef;
+}
+.payment-options .form-check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}

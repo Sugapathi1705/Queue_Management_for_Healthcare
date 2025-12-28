@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">
+        {% if current_user.is_doctor %}
+            <i class="fas fa-user-md"></i> Doctor Dashboard
+        {% else %}
+            <i class="fas fa-user"></i> Patient Dashboard
+        {% endif %}
+    </h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-4">
+                <i class="fas fa-calendar-check"></i> Upcoming Appointments
+            </h5>
+            
+            {% if appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                {% if current_user.is_doctor %}
+                                    <th>Patient</th>
+                                {% else %}
+                                    <th>Doctor</th>
+                                    <th>Specialization</th>
+                                {% endif %}
+                                <th>Status</th>
+                                <th>Description</th>
+                                <th>Payment</th>
+                                {% if current_user.is_doctor %}
+                                    <th>Actions</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                                <tr>
+                                    <td>{{ appointment.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    {% if current_user.is_doctor %}
+                                        <td>{{ appointment.patient_name }}</td>
+                                    {% else %}
+                                        <td>Dr. {{ appointment.doctor_name }}</td>
+                                        <td>{{ appointment.specialization }}</td>
+                                    {% endif %}
+                                    <td>
+                                        <span class="badge 
+                                            {% if appointment.status == 'approved' %}bg-success
+                                            {% elif appointment.status == 'rejected' %}bg-danger
+                                            {% elif appointment.status == 'visited' %}bg-primary
+                                            {% else %}bg-warning{% endif %}">
+                                            {{ appointment.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ appointment.description }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if appointment.payment_status == 'completed' %}bg-success
+                                            {% else %}bg-warning{% endif %}">
+                                            {{ appointment.payment_method.title() }}
+                                        </span>
+                                        {% if appointment.payment_details %}
+                                            <small class="d-block text-muted">{{ appointment.payment_details }}</small>
+                                        {% endif %}
+                                    </td>
+                                    {% if current_user.is_doctor %}
+                                        <td>
+                                            {% if appointment.status == 'pending' %}
+                                                <a href="{{ url_for('approve_appointment', appointment_id=appointment.id) }}" 
+                                                   class="btn btn-sm btn-success">
+                                                    <i class="fas fa-check"></i> Approve
+                                                </a>
+                                                <a href="{{ url_for('reject_appointment', appointment_id=appointment.id) }}" 
+                                                   class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-times"></i> Reject
+                                                </a>
+                                            {% elif appointment.status == 'approved' %}
+                                                <a href="{{ url_for('mark_visited', appointment_id=appointment.id) }}" 
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-user-check"></i> Visited
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No upcoming appointments.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

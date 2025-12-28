@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-star"></i> Rate Doctor
+                </h2>
+                <div class="doctor-info mb-4">
+                    <h4>Dr. {{ doctor_user.name }}</h4>
+                    <p class="text-muted">{{ doctor.specialization }}</p>
+                </div>
+                
+                <form method="POST" id="rating-form">
+                    <div class="mb-4">
+                        <label class="form-label">Rating</label>
+                        <div class="rating-input">
+                            {% for i in range(5) %}
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="rating" id="rating{{ i+1 }}" 
+                                       value="{{ i+1 }}" {% if existing_rating and existing_rating.rating == i+1 %}checked{% endif %} required>
+                                <label class="form-check-label" for="rating{{ i+1 }}">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="review" class="form-label">Review (Optional)</label>
+                        <textarea class="form-control" id="review" name="review" rows="3" 
+                                  placeholder="Share your experience with this doctor...">{{ existing_rating.review if existing_rating else '' }}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Rating
+                        </button>
+                        <a href="{{ url_for('doctors') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-input {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.rating-input .form-check-input {
+    display: none;
+}
+
+.rating-input .form-check-label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    padding: 0 0.1em;
+    transition: color 0.2s;
+}
+
+.rating-input .form-check-input:checked ~ .form-check-label i,
+.rating-input .form-check-label:hover i,
+.rating-input .form-check-label:hover ~ .form-check-label i {
+    color: #ffc107;
+}
+
+.rating-input .form-check-input:checked + .form-check-label i {
+    color: #ffc107;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingInputs = document.querySelectorAll('.rating-input .form-check-input');
+    const ratingLabels = document.querySelectorAll('.rating-input .form-check-label');
+    
+    // Set initial state based on existing rating
+    const existingRating = document.querySelector('.rating-input .form-check-input:checked');
+    if (existingRating) {
+        const rating = parseInt(existingRating.value);
+        ratingLabels.forEach((label, index) => {
+            if (index < rating) {
+                label.querySelector('i').style.color = '#ffc107';
+            }
+        });
+    }
+    
+    // Handle hover effects
+    ratingLabels.forEach((label, index) => {
+        label.addEventListener('mouseenter', () => {
+            ratingLabels.forEach((l, i) => {
+                if (i <= index) {
+                    l.querySelector('i').style.color = '#ffc107';
+                } else {
+                    l.querySelector('i').style.color = '#ddd';
+                }
+            });
+        });
+        
+        label.addEventListener('mouseleave', () => {
+            const checkedInput = document.querySelector('.rating-input .form-check-input:checked');
+            if (checkedInput) {
+                const rating = parseInt(checkedInput.value);
+                ratingLabels.forEach((l, i) => {
+                    l.querySelector('i').style.color = i < rating ? '#ffc107' : '#ddd';
+                });
+            } else {
+                ratingLabels.forEach(l => {
+                    l.querySelector('i').style.color = '#ddd';
+                });
+            }
+        });
+    });
+    
+    // Handle click events
+    ratingInputs.forEach(input => {
+        input.addEventListener('change', () => {
+            const rating = parseInt(input.value);
+            ratingLabels.forEach((label, index) => {
+                label.querySelector('i').style.color = index < rating ? '#ffc107' : '#ddd';
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 
