@@ -9,6 +9,9 @@ app = Flask(__name__)
 # Initialize database and login manager
 init_db(app)
 
+with app.app_context():
+    db.create_all()
+
 # Routes
 @app.route('/logout')
 @login_required
@@ -564,7 +567,5 @@ def history():
         return render_template('history.html', visited_appointments=visited_appointments, is_doctor=False)
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-
     app.run(debug=True, host="0.0.0.0")
+
